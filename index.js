@@ -19,6 +19,6 @@ app.use(express.json());
 app.use("/api/auth", authRoute);
 
 //listen server
-app.listen(5800, () => {
-  console.log("Server runnung at: localhost:5800");
+app.listen(process.env.PORT || 3000, () => {
+  console.log(`Server runnung at: localhost:${process.env.PORT}`);
 });

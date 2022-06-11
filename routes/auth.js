@@ -1,8 +1,10 @@
 const router = require("express").Router();
 const User = require("../model/User");
+const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
-const { registerValidation } = require("../validation");
+const { registerValidation, loginValidation } = require("../validation");
 
+//Register a User
 router.post("/register", async (req, res) => {
   // Let's validate the data before we register user
   const { error } = registerValidation(req.body);
@@ -25,14 +27,34 @@ router.post("/register", async (req, res) => {
 
   try {
     const savedUser = await userData.save();
-    res.status(200).send(savedUser);
+    res
+      .status(200)
+      .send({ user: userData._id, message: "User Created Successfully." });
   } catch (err) {
     res.status(400).send(err);
   }
 });
 
-router.post("/login", (req, res) => {
-  res.status(200).send("Login Successful!");
+//Login
+router.post("/login", async (req, res) => {
+  // Let's validate the data before we login user
+  const { error } = loginValidation(req.body);
+  if (error) return res.status(400).send(error.details[0].message);
+
+  //Checking if the email exists
+  const user = await User.findOne({ email: req.body.email });
+  if (!user) return res.status(400).send("Email or password doesnot match");
+
+  const validPass = await bcrypt.compare(req.body.password, user.password);
+
+  if (!validPass) return res.status(400).send("Invalid Password");
+
+  //Create and assign a token
+  const token = jwt.sign(
+    { _id: user._id, email: user.email },
+    process.env.TOKEN_SECRET
+  );
+  res.header("auth-token", token).send(token);
 });
 
 module.exports = router;
