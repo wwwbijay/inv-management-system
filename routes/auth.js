@@ -52,7 +52,10 @@ router.post("/login", async (req, res) => {
   //Create and assign a token
   const token = jwt.sign(
     { _id: user._id, email: user.email },
-    process.env.TOKEN_SECRET
+    process.env.TOKEN_SECRET,
+    {
+      expiresIn: "2h",
+    }
   );
   res.status(200).send({
     token: token, 

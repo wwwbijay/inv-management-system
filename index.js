@@ -10,10 +10,11 @@ const pasalRouter = require('./routes/pasal')
 dotenv.config();
 
 // Connect to db
-mongoose.connect(process.env.DB_CONNECT);
-const db = mongoose.connection
-db.on('error', (error) => console.error(error))
-db.once('open', () => console.log('Connected to Database...'))
+require("./config/database").connect();
+// mongoose.connect(process.env.DB_CONNECT);
+// const db = mongoose.connection
+// db.on('error', (error) => console.error(error))
+// db.once('open', () => console.log('Connected to Database...'))
 
 // Middlewares
 app.use(express.json());

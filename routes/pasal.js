@@ -1,9 +1,10 @@
 const express = require('express')
 const router = express.Router()
 const PasalItems = require('../model/pasal-items')
+const verify = require('./verifyToken')
 
 // Getting all
-router.get('/', async (req, res) => {
+router.get('/', verify,  async (req, res) => {
   try {
     const pasal_items = await PasalItems.find()
     res.json(pasal_items)
@@ -13,12 +14,12 @@ router.get('/', async (req, res) => {
 })
 
 // Getting One
-router.get('/:id', getPasalItem, (req, res) => {
+router.get('/:id', verify,  getPasalItem, (req, res) => {
   res.json(res.pasal_item)
 })
 
 // Creating one
-router.post('/create', async (req, res) => {
+router.post('/create',verify, async (req, res) => {
   const pasal_item = new PasalItems({
     name: req.body.name,
     price: req.body.price,
@@ -29,14 +30,14 @@ router.post('/create', async (req, res) => {
   })
   try {
     const newPasalItem = await pasal_item.save()
-    res.status(200).json(newPasalItem)
+    res.status(200).json({message: 'Item Added Successfully.', data: newPasalItem })
   } catch (err) {
     res.status(400).json({ message: err.message })
   }
 })
 
 // Updating One
-router.put('/update/:id', getPasalItem, async (req, res) => {
+router.put('/update/:id',verify, getPasalItem, async (req, res) => {
   console.log(res.pasal_item);
   if (req.body.name != null) {
     res.pasal_item.name = req.body.name
@@ -59,14 +60,14 @@ router.put('/update/:id', getPasalItem, async (req, res) => {
 
   try {
     const updatedItem = await res.pasal_item.save()
-    res.json(updatedItem)
+    res.json({message: 'Item Updated Successfully.', data: updatedItem })
   } catch (err) {
     res.status(400).json({ message: err.message })
   }
 })
 
 // Deleting One
-router.delete('/delete/:id', getPasalItem, async (req, res) => {
+router.delete('/delete/:id',verify, getPasalItem, async (req, res) => {
   try {
     await res.pasal_item.remove()
     res.json({ message: 'Deleted Item' })
@@ -89,7 +90,5 @@ async function getPasalItem(req, res, next) {
   res.pasal_item = pasal_item
   next()
 }
-
-
 
 module.exports = router
